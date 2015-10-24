@@ -14,7 +14,7 @@ $config = [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'identityClass' => 'app\models\User',
+            'identityClass' => 'app\models\entity\User',
             'enableAutoLogin' => true,
         ],
         'errorHandler' => [
@@ -22,7 +22,7 @@ $config = [
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
-            'useFileTransport' => true,
+            //'useFileTransport' => true,
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -34,15 +34,42 @@ $config = [
             ],
         ],
         'db' => require(__DIR__ . '/db.php'),
-        /*
+		'authManager' => [
+			'class' => 'yii\rbac\DbManager',
+			'defaultRoles' => ['admin', 'moderator', 'user'],
+		],
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+				
+				//'site/captcha' => 'site/default/captcha',
+				
+				'news/<page:\d+>' => 'news/default/index',
+				'news/<slug:[\w-]+>' => 'news/default/view',
+				
+				'<module:\w+>/'        		=> '<module>/default/index',
+				'<module:\w+>/<action:[\w-]+>' => '<module>/default/<action>',
+				
+				
+				//'<module:\w+>/'        							=> '<module>/default/index',
+				//'<module:\w+>/<slug:[\w-]+>/'        		    => '<module>/default/view',
+				//'<module:\w+>/<controller:\w+>/'        		=> '<module>/<controller>/index',
+				//'<module:\w+>/<controller:\w+>/<action:\d+>'    => '<module>/<controller>/<action>',
             ],
-        ],
-        */
+        ]
     ],
+	'modules' => [
+		'site' => [
+            'class' => 'app\modules\site\Site',
+        ],
+		'user' => [
+            'class' => 'app\modules\user\User',
+        ],
+		'news' => [
+            'class' => 'app\modules\news\News',
+        ],
+	],
     'params' => $params,
 ];
 
