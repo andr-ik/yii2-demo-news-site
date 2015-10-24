@@ -3,8 +3,8 @@
 namespace app\commands;
 
 use yii\console\Controller;
-use app\models\Category;
-use app\models\News;
+use app\models\entity\Category;
+use app\models\entity\News;
 
 class DataLoadController extends Controller
 {
