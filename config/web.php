@@ -16,6 +16,7 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\entity\User',
             'enableAutoLogin' => true,
+			'loginUrl' => '/user/login'
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -43,10 +44,13 @@ $config = [
             'showScriptName' => false,
             'rules' => [
 				
-				//'site/captcha' => 'site/default/captcha',
+				'news/create'               => 'news/default/create',
+				'news/update/<slug:[\w-]+>' => 'news/default/update',
 				
-				'news/<page:\d+>' => 'news/default/index',
-				'news/<slug:[\w-]+>' => 'news/default/view',
+				'news/s/<slug:[\w-]+>' 				=> 'news/default/view',
+				//'news/<page:\d+>' 	        		=> 'news/default/index',
+				'news/<category:[\w-]+>'            => 'news/default/index',
+				//'news/<category:[\w-]+>/<page:\d+>' => 'news/default/index',
 				
 				'<module:\w+>/'        		=> '<module>/default/index',
 				'<module:\w+>/<action:[\w-]+>' => '<module>/default/<action>',

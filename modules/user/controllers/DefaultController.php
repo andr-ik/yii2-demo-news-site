@@ -94,6 +94,7 @@ class DefaultController extends Controller
 		$user = User::findByActivateToken($token);
 		if ( !$user ) throw new InvalidParamException('Wrong password reset token.');
 		$user->status = User::STATUS_ACTIVE;
+		$user->activate_token = null;
 		if( $user->save() ){
 			Yii::$app->session->setFlash('success', 'You accaunt is activate.');
 			Yii::$app->user->login($user, 0);

@@ -104,4 +104,9 @@ class News extends \yii\db\ActiveRecord
 			],
 		];
 	}
+	
+	static public function findMy(){
+		if ( Yii::$app->user->isGuest ) throw new \Exception('Not authorized');
+		return static::find()->where(['author_id'=>Yii::$app->user->identity->id]);
+	}
 }

@@ -46,6 +46,9 @@ class RegistrationForm extends Model
 			
             if ($user->save()) {
 				
+				$userRole = Yii::$app->authManager->getRole('user');
+				Yii::$app->authManager->assign($userRole, $user->id);
+				
 				Yii::$app->mailer
 					->compose(['html' => 'userActivateToken-html', 'text' => 'userActivateToken-text'], ['user' => $user])
                     ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->name . ' robot'])
