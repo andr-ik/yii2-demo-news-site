@@ -31,6 +31,12 @@ yii fixture User --namespace='app\fixtures'
 yii data-load
 ~~~
 
+Инициализация RBAC
+
+~~~
+yii rbac/init
+~~~
+
 ...
 ...
 ...
