@@ -46,12 +46,12 @@ class DefaultController extends Controller
 		if ( $category !== null && !in_array($category,['all','my']) ){
 			$category = Category::find()->where(['slug'=>$category])->one();
 			if ( !$category ) throw new NotFoundHttpException('Page not found.');
-			$query->where(['category_id'=>$category->id]);
+			$query->andWhere(['category_id'=>$category->id]);
 		}
 		
 		if ( $category === 'my' ){
 			if ( Yii::$app->user->isGuest ) $this->redirect('/news');
-			else $query->where(['author_id'=>Yii::$app->user->identity->id]);
+			else $query->andWhere(['author_id'=>Yii::$app->user->identity->id]);
 		}
 		
 		return $this->render('index',array(
@@ -73,6 +73,11 @@ class DefaultController extends Controller
 		$model->load(Yii::$app->request->post());
 		$model->author_id = Yii::$app->user->identity->id;
 		
+		//!!! сделать поле status unsafe
+		if ( !Yii::$app->user->can('setStatusActiveNews') ){
+			$model->status = 0;
+		}
+		
         if ($model->save()) {
             return $this->redirect(['view', 'slug' => $model->slug]);
         } else {
@@ -87,20 +92,25 @@ class DefaultController extends Controller
     {
         $model = $this->findModel($slug);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'slug' => $model->slug]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-				'category' => ArrayHelper::map(Category::find()->all(), 'id', 'title')
-            ]);
-        }
+		if ( !Yii::$app->user->can('editNews',['model'=>$model]) ) $this->redirect('/news');
+		
+		if ( $model->load(Yii::$app->request->post()) ){
+			//!!! сделать поле status unsafe
+			if ( !Yii::$app->user->can('setStatusActiveNews') ){
+				$model->status = 0;
+			}
+			if ($model->save()) return $this->redirect(['view', 'slug' => $model->slug]);
+		}
+		
+		return $this->render('update', [
+			'model' => $model,
+			'category' => ArrayHelper::map(Category::find()->all(), 'id', 'title')
+		]);
     }
 	
 	public function actionDelete($slug)
     {
         $this->findModel($slug)->delete();
-
         return $this->redirect(['index']);
     }
 	
@@ -111,6 +121,8 @@ class DefaultController extends Controller
 	}
 	
 	private function getDataProvider($query){
+		if ( !Yii::$app->user->can('moderator') ) $query->andWhere(['status'=>1]);
+		
 		return new ActiveDataProvider([
 			'query' => $query,
 			'pagination' => [

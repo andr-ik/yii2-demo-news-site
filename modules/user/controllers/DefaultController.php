@@ -6,6 +6,8 @@ use Yii;
 use yii\web\Controller;
 use yii\web\BadRequestHttpException;
 use yii\base\InvalidParamException;
+use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 
 use app\models\form\LoginForm;
 use app\models\form\RegistrationForm;
@@ -16,9 +18,30 @@ use app\models\entity\User;
 
 class DefaultController extends Controller
 {
+	public function behaviors()
+	{
+		return [
+			'access' => [
+				'class' => AccessControl::className(),
+				'rules' => [
+					[
+						'allow' => true,
+						'actions'=>['login','registration','logout','reset','reset-password','activate'],
+						'roles' => ['?','@']
+					],
+					[
+						'allow' => true,
+						'actions'=>['list','view','create','update','delete'],
+						'roles' => ['moderator'],
+					],
+				],
+			],
+		];
+	}
+	
 	public function actionLogin()
     {
-        if (!\Yii::$app->user->isGuest) {
+        if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
@@ -101,4 +124,73 @@ class DefaultController extends Controller
 			return $this->goHome();
 		}
 	}
+	
+	public function actionList()
+	{
+		$dataProvider = new ActiveDataProvider([
+			'query' => User::find(),
+		]);
+
+		return $this->render('index', [
+			'dataProvider' => $dataProvider,
+		]);
+	}
+	
+	public function actionView($id)
+    {
+        return $this->render('view', [
+            'model' => $this->findModel($id),
+        ]);
+    }
+	
+	public function actionCreate()
+    {
+        $model = new User();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['list']);
+        } else {
+            return $this->render('create', [
+                'model' => $model,
+            ]);
+        }
+    }
+	
+	public function actionUpdate($id)
+    {
+        $model = $this->findModel($id);
+		
+        if ($model->load(Yii::$app->request->post())) {
+			
+			if ( $model->status ) $model->status = User::STATUS_ACTIVE;
+			else $model->status = User::STATUS_DELETED;
+			
+			if ( $model->save() ){
+				Yii::$app->authManager->revokeAll($model->id);
+				$userRole = Yii::$app->authManager->getRole(User::$roles[$model->role]);
+				Yii::$app->authManager->assign($userRole, $model->id);
+				return $this->redirect(['list']);
+			}
+        } else {
+            return $this->render('update', [
+                'model' => $model,
+            ]);
+        }
+    }
+	
+	public function actionDelete($id)
+    {
+        $this->findModel($id)->delete();
+
+        return $this->redirect(['list']);
+    }
+	
+	protected function findModel($id)
+    {
+        if (($model = User::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+    }
 }

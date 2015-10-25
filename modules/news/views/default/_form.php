@@ -17,7 +17,9 @@ use yii\widgets\ActiveForm;
 
 	<?= $form->field($model, 'category_id')->dropDownList($category,['prompt'=>'Select category']); ?>
 	
-    <!--<?= $form->field($model, 'status')->checkBox() ?>-->
+	<?php if(Yii::$app->user->can('setStatusActiveNews')): ?>
+    <?= $form->field($model, 'status')->checkBox() ?>
+	<?php endif; ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>

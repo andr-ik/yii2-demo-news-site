@@ -24,11 +24,17 @@ use yii\web\IdentityInterface;
 class User extends ActiveRecord implements IdentityInterface
 {
     const STATUS_DELETED = 0;
-    const STATUS_ACTIVE = 10;
+    const STATUS_ACTIVE = 1;
 
 	const ROLE_USER = 0;
 	const ROLE_MODERATOR = 1;
 	const ROLE_ADMIN = 2;
+	
+	static public $roles = [
+		User::ROLE_USER => 'user',
+		User::ROLE_MODERATOR => 'moderator',
+		User::ROLE_ADMIN => 'admin'
+	];
 	
     /**
      * @inheritdoc
@@ -54,8 +60,9 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
+			[['username', 'email', 'status', 'role'], 'required'],
             ['status', 'default', 'value' => self::STATUS_DELETED],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            //['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
         ];
     }
 
@@ -204,4 +211,8 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $this->activate_token = null;
     }
+	
+	public function getRoleTitle(){
+		return \current(Yii::$app->authManager->getRolesByUser($this->id))->name;
+	}
 }

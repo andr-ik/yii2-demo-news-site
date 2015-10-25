@@ -46,11 +46,14 @@ $config = [
 				
 				'news/create'               => 'news/default/create',
 				'news/update/<slug:[\w-]+>' => 'news/default/update',
+				'news/delete/<slug:[\w-]+>' => 'news/default/delete',
 				
 				'news/s/<slug:[\w-]+>' 				=> 'news/default/view',
 				//'news/<page:\d+>' 	        		=> 'news/default/index',
 				'news/<category:[\w-]+>'            => 'news/default/index',
 				//'news/<category:[\w-]+>/<page:\d+>' => 'news/default/index',
+				
+				'user/'        		=> 'user/default/list',
 				
 				'<module:\w+>/'        		=> '<module>/default/index',
 				'<module:\w+>/<action:[\w-]+>' => '<module>/default/<action>',

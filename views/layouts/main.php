@@ -41,6 +41,10 @@ AppAsset::register($this);
 		['label' => 'News', 'url' => ['/news']],
 	];
 	
+	if ( Yii::$app->user->can('moderator') ){
+		$items[] = ['label' => 'Users', 'url' => ['/user/list']];
+	}
+	
 	if ( Yii::$app->user->isGuest ){
 		$items[] = ['label' => 'Login', 'url' => ['/user/login']];
         $items[] = ['label' => 'Registration', 'url' => ['/user/registration']];
